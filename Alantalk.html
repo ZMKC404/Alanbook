@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿霖的内容生态</title>
+    <style>
+        @font-face {
+            font-family: 'KingHwa_OldSong';
+            src: url('./fonts/KingHwa_OldSong.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --header-bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --accent-color: #d32f2f;
+            --secondary-color: #757575;
+            --highlight-color: #f8f8f8;
+            --highlight-bg: #fff8e1;
+            --icon-color: #616161;
+            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --header-bg: #1e1e1e;
+            --card-bg: #1e1e1e;
+            --border-color: #424242;
+            --accent-color: #ff5252;
+            --secondary-color: #b0b0b0;
+            --highlight-color: #2d2d2d;
+            --highlight-bg: #3e2723;
+            --icon-color: #b0b0b0;
+            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+            font-family: 'KingHwa_OldSong', serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            font-family: 'KingHwa_OldSong', serif;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-color);
+            z-index: 100;
+        }
+
+        .title-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: normal;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .theme-toggle, .filter-btn, .export-btn, .directory-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 5px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover, .filter-btn:hover, .directory-btn:hover {
+            background-color: var(--highlight-color);
+        }
+
+        .export-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+        }
+
+        .export-btn:hover {
+            opacity: 0.9;
+            background-color: var(--accent-color);
+        }
+
+        .post-form {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: var(--card-shadow);
+        }
+
+        .post-input {
+            width: 100%;
+            min-height: 100px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            resize: vertical;
+            font-size: 1rem;
+            font-family: 'KingHwa_OldSong', serif;
+        }
+
+        .post-input:focus {
+            outline: 1px solid var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .post-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 20px;
+            cursor: pointer;
+            float: right;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .post-btn:hover {
+            opacity: 0.9;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 50px;
+        }
+
+        .month-section {
+            margin-bottom: 10px;
+        }
+
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: var(--header-bg);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .month-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .month-summary {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        .post-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 15px;
+        }
+
+        .post-card:hover {
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .post-card.highlight {
+            box-shadow: 0 0 0 2px var(--accent-color), var(--card-shadow-hover);
+        }
+
+        .post-content {
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            line-height: 1.7;
+            user-select: none;
+        }
+
+        .highlight-text {
+            background-color: var(--highlight-bg);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+
+        .post-time {
+            color: var(--secondary-color);
+            font-size: 0.85rem;
+            user-select: none;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .like-btn, .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--icon-color);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .like-btn:hover, .menu-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .like-btn.liked {
+            color: var(--accent-color);
+        }
+
+        .like-count {
+            font-size: 0.85rem;
+        }
+
+        .empty-timeline {
+            text-align: center;
+            color: var(--secondary-color);
+            padding: 40px 0;
+        }
+
+        .directory {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .directory-title {
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .directory-list {
+            list-style-type: none;
+        }
+
+        .directory-item {
+            margin: 5px 0;
+            padding: 5px 0;
+        }
+
+        .directory-link {
+            color: var(--text-color);
+            text-decoration: none;
+            display: flex;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .directory-link:hover {
+            color: var(--accent-color);
+        }
+
+        .directory-date {
+            color: var(--secondary-color);
+            font-size: 0.85rem;
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            right: 15px;
+            top: 40px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+        }
+
+        .menu-dropdown.show {
+            display: block;
+        }
+
+        .menu-option {
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .menu-option:hover {
+            background-color: var(--highlight-color);
+        }
+
+        .pinned {
+            border-left: 4px solid var(--accent-color);
+            background-color: var(--highlight-color);
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: 'KingHwa_OldSong', serif;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            background-color: var(--highlight-color);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .controls {
+                flex-wrap: wrap;
+            }
+            .post-form {
+                padding: 15px;
+            }
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 内容保护 - 禁止选择文本 */
+        .protected {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="title-container">
+            <h1>阿霖的内容生态</h1>
+            <div class="subtitle">窄门科创出品</div>
+        </div>
+        <div class="controls">
+            <button class="directory-btn" id="directoryBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+                目录
+            </button>
+            <button class="theme-toggle" id="themeToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+                夜间
+            </button>
+            <button class="export-btn" id="exportBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                导出
+            </button>
+        </div>
+    </header>
+
+    <div class="stats-container protected" id="statsContainer">
+        <div class="stat-item">
+            <div class="stat-value" id="dayCount">0</div>
+            <div class="stat-label">已连续天数</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="wordCount">0</div>
+            <div class="stat-label">总字数</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="postCount">0</div>
+            <div class="stat-label">笔记数量</div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <span class="search-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </span>
+        <input type="text" class="search-input" id="searchInput" placeholder="搜索笔记...">
+    </div>
+
+    <div class="directory" id="directory">
+        <h2 class="directory-title">目录索引</h2>
+        <ul class="directory-list" id="directoryList"></ul>
+    </div>
+
+    <div class="post-form">
+        <textarea class="post-input" id="postInput" placeholder="分享你的想法..."></textarea>
+        <button class="post-btn" id="postBtn">发布</button>
+        <div style="clear: both;"></div>
+    </div>
+
+    <div class="timeline" id="timeline">
+        <div class="empty-timeline" id="emptyTimeline">暂无内容</div>
+    </div>
+
+    <script>
+        // 检查并加载字体
+        document.fonts.ready.then(() => {
+            if (!document.fonts.check('1em KingHwa_OldSong')) {
+                console.warn('京華老宋体未能加载，使用系统默认字体');
+            }
+        });
+
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // 从本地存储加载主题设置
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                日间
+            `;
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggle.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+                    夜间
+                `;
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    日间
+                `;
+            }
+        });
+
+        // 目录按钮功能
+        const directoryBtn = document.getElementById('directoryBtn');
+        const directory = document.getElementById('directory');
+        const timeline = document.getElementById('timeline');
+        const postForm = document.querySelector('.post-form');
+        
+        directoryBtn.addEventListener('click', () => {
+            if (directory.style.display === 'none' || directory.style.display === '') {
+                directory.style.display = 'block';
+                timeline.style.display = 'none';
+                postForm.style.display = 'none';
+                directoryBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    笔记
+                `;
+            } else {
+                directory.style.display = 'none';
+                timeline.style.display = 'flex';
+                postForm.style.display = 'block';
+                directoryBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+                    目录
+                `;
+            }
+        });
+
+        // 发布说说功能
+        const postInput = document.getElementById('postInput');
+        const postBtn = document.getElementById('postBtn');
+        const emptyTimeline = document.getElementById('emptyTimeline');
+        const directoryList = document.getElementById('directoryList');
+        const searchInput = document.getElementById('searchInput');
+        const statsContainer = document.getElementById('statsContainer');
+        const dayCountElement = document.getElementById('dayCount');
+        const wordCountElement = document.getElementById('wordCount');
+        const postCountElement = document.getElementById('postCount');
+        
+        // 从本地存储加载已保存的说说
+        let posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // 获取月份格式化
+        function getMonthFormat(dateString) {
+            const date = new Date(dateString);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        // 生成月份标题
+        function generateMonthTitle(monthStr) {
+            const [year, month] = monthStr.split('-');
+            return `${year}年${month}月`;
+        }
+        
+        // 按月份分组说说
+        function groupPostsByMonth(posts) {
+            const groupedPosts = {};
+            
+            posts.forEach(post => {
+                const monthKey = getMonthFormat(post.time);
+                if (!groupedPosts[monthKey]) {
+                    groupedPosts[monthKey] = [];
+                }
+                groupedPosts[monthKey].push(post);
+            });
+            
+            return groupedPosts;
+        }
+
+        // 计算统计数据
+        function calculateStats() {
+            // 计算总字数
+            const totalWords = posts.reduce((total, post) => total + post.content.length, 0);
+            wordCountElement.textContent = totalWords;
+            
+            // 计算笔记数量
+            postCountElement.textContent = posts.length;
+            
+            // 计算连续天数
+            if (posts.length > 0) {
+                const dates = posts.map(post => {
+                    const date = new Date(post.time);
+                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                });
+                
+                // 去重并按日期排序
+                const uniqueDates = [...new Set(dates)].sort();
+                
+                // 计算连续天数
+                let consecutiveDays = 1;
+                let maxConsecutiveDays = 1;
+                
+                for (let i = 1; i < uniqueDates.length; i++) {
+                    const prevDate = new Date(uniqueDates[i - 1]);
+                    const currDate = new Date(uniqueDates[i]);
+                    
+                    // 计算日期差
+                    const diffTime = Math.abs(currDate - prevDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 1) {
+                        consecutiveDays++;
+                        maxConsecutiveDays = Math.max(maxConsecutiveDays, consecutiveDays);
+                    } else {
+                        consecutiveDays = 1;
+                    }
+                }
+                
+                dayCountElement.textContent = maxConsecutiveDays;
+            } else {
+                dayCountElement.textContent = 0;
+            }
+        }
+
+        // 生成标题
+        function generateTitle(content) {
+            // 检查内容是否以 # 开头
+            const lines = content.trim().split('\n');
+            const firstLine = lines[0].trim();
+            
+            if (firstLine.startsWith('#')) {
+                // 如果以 # 开头，使用 # 后面的内容作为标题
+                return firstLine.substring(1).trim();
+            }
+            
+            // 否则使用内容的前10个字符作为标题
+            return content.trim().substring(0, 10) + (content.length > 10 ? '...' : '');
+        }
+
+        // 检查是否应该添加到目录
+        function shouldAddToDirectory(content) {
+            const lines = content.trim().split('\n');
+            const firstLine = lines[0].trim();
+            return firstLine.startsWith('#');
+        }
+        
+        // 高亮搜索关键词
+        function highlightSearchTerm(content, searchTerm) {
+            if (!searchTerm) return content;
+            
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            return content.replace(regex, '<span class="highlight-text">$1</span>');
+        }
+        
+        // 搜索功能变量
+        let searchResults = [];
+        let currentSearchIndex = -1;
+        
+        // 搜索并高亮
+        function searchAndHighlight() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                // 清除所有高亮
+                document.querySelectorAll('.post-card').forEach(card => {
+                    card.classList.remove('highlight');
+                    const content = card.querySelector('.post-content');
+                    if (content) {
+                        content.innerHTML = content.textContent;
+                    }
+                });
+                searchResults = [];
+                currentSearchIndex = -1;
+                return;
+            }
+            
+            // 查找匹配的帖子
+            searchResults = [];
+            document.querySelectorAll('.post-card').forEach(card => {
+                const content = card.querySelector('.post-content');
+                if (content && content.textContent.toLowerCase().includes(searchTerm)) {
+                    searchResults.push(card);
+                    content.innerHTML = highlightSearchTerm(content.textContent, searchTerm);
+                } else {
+                    card.classList.remove('highlight');
+                    if (content) {
+                        content.innerHTML = content.textContent;
+                    }
+                }
+            });
+            
+            // 重置搜索索引
+            currentSearchIndex = -1;
+            
+            // 如果有结果，跳转到第一个
+            if (searchResults.length > 0) {
+                navigateToNextSearchResult();
+            }
+        }
+        
+        // 跳转到下一个搜索结果
+        function navigateToNextSearchResult() {
+            // 清除所有高亮
+            document.querySelectorAll('.post-card').forEach(card => {
+                card.classList.remove('highlight');
+            });
+            
+            if (searchResults.length === 0) return;
+            
+            // 移动到下一个结果
+            currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+            const targetCard = searchResults[currentSearchIndex];
+            
+            // 高亮当前卡片
+            targetCard.classList.add('highlight');
+            
+            // 滚动到视图
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // 渲染说说列表
+        function renderPosts(filteredPosts = null) {
+            const postsToRender = filteredPosts || posts;
+            
+            if (postsToRender.length > 0) {
+                emptyTimeline.style.display = 'none';
+                
+                // 清空现有内容
+                while (timeline.firstChild) {
+                    if (timeline.firstChild === emptyTimeline) {
+                        break;
+                    }
+                    timeline.removeChild(timeline.firstChild);
+                }
+                
+                // 按时间倒序排列
+                postsToRender.sort((a, b) => {
+                    // 置顶的排在最前面
+                    if (a.pinned && !b.pinned) return -1;
+                    if (!a.pinned && b.pinned) return 1;
+                    // 同为置顶或非置顶，按时间排序
+                    return new Date(b.time) - new Date(a.time);
+                });
+                
+                // 按月份分组
+                const groupedPosts = groupPostsByMonth(postsToRender);
+                const months = Object.keys(groupedPosts).sort().reverse();
+                
+                // 更新目录
+                directoryList.innerHTML = '';
+                
+                let postIndex = 1;
+                
+                // 遍历每个月份
+                for (const month of months) {
+                    const monthPosts = groupedPosts[month];
+                    const monthTitle = generateMonthTitle(month);
+                    
+                    // 创建月份区块
+                    const monthSection = document.createElement('div');
+                    monthSection.className = 'month-section';
+                    monthSection.id = `month-${month}`;
+                    
+                    const monthHeader = document.createElement('div');
+                    monthHeader.className = 'month-header';
+                    monthHeader.innerHTML = `<div class="month-title">${monthTitle}</div>`;
+                    
+                    monthSection.appendChild(monthHeader);
+                    
+                    // 添加该月的帖子
+                    for (const post of monthPosts) {
+                        const postCard = document.createElement('div');
+                        postCard.className = `post-card ${post.pinned ? 'pinned' : ''}`;
+                        postCard.id = `post-${post.id}`;
+                        
+                        const postContent = document.createElement('div');
+                        postContent.className = 'post-content protected';
+                        postContent.textContent = post.content;
+                        
+                        const postFooter = document.createElement('div');
+                        postFooter.className = 'post-footer';
+                        
+                        const postTime = document.createElement('div');
+                        postTime.className = 'post-time protected';
+                        postTime.textContent = formatDate(post.time);
+                        
+                        const postActions = document.createElement('div');
+                        postActions.className = 'post-actions';
+                        
+                        // 点赞按钮
+                        const likeBtn = document.createElement('button');
+                        likeBtn.className = `like-btn ${post.liked ? 'liked' : ''}`;
+                        likeBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${post.liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                            <span class="like-count">${post.likes || 0}</span>
+                        `;
+                        likeBtn.addEventListener('click', () => {
+                            const isLiked = !post.liked;
+                            post.liked = isLiked;
+                            post.likes = (post.likes || 0) + (isLiked ? 1 : -1);
+                            if (post.likes < 0) post.likes = 0;
+                            
+                            // 添加点赞动效
+                            if (isLiked) {
+                                const heart = document.createElement('div');
+                                heart.style.position = 'absolute';
+                                heart.style.fontSize = '24px';
+                                heart.style.color = 'var(--accent-color)';
+                                heart.style.pointerEvents = 'none';
+                                heart.style.zIndex = '1000';
+                                heart.style.opacity = '1';
+                                heart.style.transition = 'transform 1s ease, opacity 1s ease';
+                                heart.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>`;
+                                
+                                const rect = likeBtn.getBoundingClientRect();
+                                heart.style.left = `${rect.left + rect.width / 2}px`;
+                                heart.style.top = `${rect.top}px`;
+                                
+                                document.body.appendChild(heart);
+                                
+                                setTimeout(() => {
+                                    heart.style.transform = 'translateY(-50px)';
+                                    heart.style.opacity = '0';
+                                }, 50);
+                                
+                                setTimeout(() => {
+                                    document.body.removeChild(heart);
+                                }, 1000);
+                            }
+                            
+                            likeBtn.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                                <span class="like-count">${post.likes}</span>
+                            `;
+                            
+                            localStorage.setItem('posts', JSON.stringify(posts));
+                        });
+                        
+                        // 菜单按钮
+                        const menuBtn = document.createElement('button');
+                        menuBtn.className = 'menu-btn';
+                        menuBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>`;
+                        menuBtn.addEventListener('click', (event) => {
+                            event.stopPropagation();
+                            
+                            // 创建菜单下拉框
+                            let menuDropdown = document.querySelector('.menu-dropdown');
+                            if (menuDropdown) {
+                                menuDropdown.remove();
+                            }
+                            
+                            menuDropdown = document.createElement('div');
+                            menuDropdown.className = 'menu-dropdown show';
+                            
+                            // 置顶选项 - 移到第一位
+                            const pinOption = document.createElement('div');
+                            pinOption.className = 'menu-option';
+                            pinOption.textContent = post.pinned ? '取消置顶' : '置顶';
+                            pinOption.addEventListener('click', () => {
+                                post.pinned = !post.pinned;
+                                localStorage.setItem('posts', JSON.stringify(posts));
+                                renderPosts();
+                                menuDropdown.remove();
+                            });
+                            
+                            // 导出为图片选项
+                            const exportOption = document.createElement('div');
+                            exportOption.className = 'menu-option';
+                            exportOption.textContent = '导出为图片';
+                            exportOption.addEventListener('click', () => {
+                                exportAsImage(post);
+                                menuDropdown.remove();
+                            });
+                            
+                            // 删除选项
+                            const deleteOption = document.createElement('div');
+                            deleteOption.className = 'menu-option';
+                            deleteOption.textContent = '删除';
+                            deleteOption.addEventListener('click', () => {
+                                if (confirm('确定要删除这条内容吗？')) {
+                                    posts = posts.filter(p => p.id !== post.id);
+                                    localStorage.setItem('posts', JSON.stringify(posts));
+                                    renderPosts();
+                                }
+                                menuDropdown.remove();
+                            });
+                            
+                            // 按新顺序添加选项
+                            menuDropdown.appendChild(pinOption);
+                            menuDropdown.appendChild(exportOption);
+                            menuDropdown.appendChild(deleteOption);
+                            
+                            postCard.appendChild(menuDropdown);
+                            
+                            // 定位菜单
+                            const rect = menuBtn.getBoundingClientRect();
+                            menuDropdown.style.top = `${rect.bottom - postCard.getBoundingClientRect().top}px`;
+                            menuDropdown.style.right = `${postCard.offsetWidth - rect.right + postCard.getBoundingClientRect().left}px`;
+                            
+                            // 点击其他区域关闭菜单
+                            document.addEventListener('click', function closeMenu(e) {
+                                if (!menuDropdown.contains(e.target) && e.target !== menuBtn) {
+                                    menuDropdown.remove();
+                                    document.removeEventListener('click', closeMenu);
+                                }
+                            });
+                        });
+                        
+                        postActions.appendChild(likeBtn);
+                        postActions.appendChild(menuBtn);
+                        
+                        postFooter.appendChild(postTime);
+                        postFooter.appendChild(postActions);
+                        
+                        postCard.appendChild(postContent);
+                        postCard.appendChild(postFooter);
+                        
+                        monthSection.appendChild(postCard);
+                        
+                        // 为目录添加条目 - 只有以 # 开头的笔记才添加到目录
+                        if (shouldAddToDirectory(post.content)) {
+                            if (!post.title) {
+                                post.title = generateTitle(post.content);
+                                localStorage.setItem('posts', JSON.stringify(posts));
+                            }
+                            
+                            const dirItem = document.createElement('li');
+                            dirItem.className = 'directory-item';
+                            
+                            const dirLink = document.createElement('a');
+                            dirLink.className = 'directory-link';
+                            dirLink.href = `#post-${post.id}`;
+                            dirLink.innerHTML = `
+                                <span>${String(postIndex).padStart(3, '0')} ${post.title}</span>
+                                <span class="directory-date">${formatDate(post.time)}</span>
+                            `;
+                            
+                            dirItem.appendChild(dirLink);
+                            directoryList.appendChild(dirItem);
+                            
+                            postIndex++;
+                        }
+                    }
+                    
+                    timeline.insertBefore(monthSection, emptyTimeline);
+                }
+            } else {
+                emptyTimeline.style.display = 'block';
+                directoryList.innerHTML = '<li>暂无内容</li>';
+            }
+            
+            // 更新统计数据
+            calculateStats();
+        }
+        
+        // 导出为图片功能
+        function exportAsImage(post) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 设置画布大小
+            const width = 800;
+            const lineHeight = 30;
+            const padding = 40;
+            
+            // 计算文本行数
+            const lines = [];
+            const words = post.content.split('');
+            let currentLine = '';
+            const maxLineWidth = width - (padding * 2);
+            const charsPerLine = Math.floor(maxLineWidth / 30); // 估算每行字符数
+            
+            for (let i = 0; i < words.length; i++) {
+                currentLine += words[i];
+                
+                if (currentLine.length >= charsPerLine || words[i] === '\n' || i === words.length - 1) {
+                    lines.push(currentLine);
+                    currentLine = '';
+                }
+            }
+            
+            // 设置画布高度
+            const height = (lines.length * lineHeight) + (padding * 2) + 60; // 额外空间用于标题和日期
+            canvas.width = width;
+            canvas.height = height;
+            
+            // 绘制背景
+            ctx.fillStyle = '#f9f9f9';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 绘制边框
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 10, width - 20, height - 20);
+            
+            // 设置字体
+            ctx.font = '24px KingHwa_OldSong';
+            ctx.fillStyle = '#333333';
+            
+            // 绘制标题
+            ctx.fillText('阿霖的内容生态', padding, padding);
+            
+            // 绘制日期
+            ctx.font = '16px KingHwa_OldSong';
+            ctx.fillStyle = '#757575';
+            ctx.fillText(formatDate(post.time), padding, padding + 30);
+            
+            // 绘制内容
+            ctx.font = '20px KingHwa_OldSong';
+            ctx.fillStyle = '#333333';
+            
+            for (let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], padding, padding + 70 + (i * lineHeight));
+            }
+            
+            // 转换为图片并下载
+            const dataUrl = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `阿霖的内容_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        // 初始渲染
+        renderPosts();
+        
+        // 发布新说说
+        function createNewPost() {
+            const content = postInput.value.trim();
+            if (content) {
+                const newPost = {
+                    id: Date.now(),
+                    content: content,
+                    time: new Date().toISOString(),
+                    likes: 0,
+                    liked: false,
+                    pinned: false
+                };
+                
+                // 生成标题
+                newPost.title = generateTitle(content);
+                
+                posts.push(newPost);
+                localStorage.setItem('posts', JSON.stringify(posts));
+                
+                postInput.value = '';
+                renderPosts();
+            }
+        }
+        
+        // 点击发布按钮
+        postBtn.addEventListener('click', createNewPost);
+        
+        // 按回车键发布
+        postInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                createNewPost();
+            }
+        });
+
+        // 搜索功能
+        searchInput.addEventListener('input', () => {
+            searchAndHighlight();
+        });
+        
+        // 搜索框按回车键跳转到下一个结果
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                navigateToNextSearchResult();
+            }
+        });
+
+        // 导出功能
+        const exportBtn = document.getElementById('exportBtn');
+        
+        exportBtn.addEventListener('click', () => {
+            // 创建文本内容
+            let textContent = `# 阿霖的内容生态\n\n`;
+            
+            if (posts.length > 0) {
+                posts.sort((a, b) => new Date(b.time) - new Date(a.time));
+                
+                // 生成目录
+                textContent += `## 目录\n\n`;
+                
+                let index = 1;
+                posts.forEach(post => {
+                    if (shouldAddToDirectory(post.content)) {
+                        const title = post.title || "未命名内容";
+                        const indexStr = String(index).padStart(3, '0');
+                        textContent += `${indexStr}. [${title}](#${indexStr})\n`;
+                        index++;
+                    }
+                });
+                
+                textContent += `\n---\n\n`;
+                
+                // 生成内容
+                index = 1;
+                posts.forEach(post => {
+                    if (shouldAddToDirectory(post.content)) {
+                        const date = formatDate(post.time);
+                        const title = post.title || "未命名内容";
+                        const indexStr = String(index).padStart(3, '0');
+                        textContent += `## <a id="${indexStr}"></a>${indexStr} - ${title}\n\n`;
+                        textContent += `*${date}*\n\n${post.content}\n\n---\n\n`;
+                        index++;
+                    }
+                });
+            } else {
+                textContent += '暂无内容\n';
+            }
+            
+            // 创建Markdown文件下载
+            const blob = new Blob([textContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `阿霖的内容生态_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // 默认隐藏目录
+        directory.style.display = 'none';
+    </script>
+</body>
+</html>
