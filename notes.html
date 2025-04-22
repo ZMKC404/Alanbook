@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>神说要有光</title>
+  <!-- 引入 SortableJS 用于拖拽 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <!-- 引入 html2canvas 库，用于导出图片 (如果需要导出功能，保留此行) -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
+  <style>
+    /* 字体定义 */
+    @font-face {
+      font-family: 'KingHwa_OldSong';
+      /* 确保字体文件路径正确，或使用在线字体服务 */
+      /* src: url('KingHwa_OldSong.woff2') format('woff2'); */
+      /* 暂时移除自定义字体，避免因路径问题导致显示异常 */
+    }
+    @font-face {
+      font-family: 'PingFangSC';
+      src: local('PingFang SC'); /* 尝试本地字体 */
+    }
+
+
+    :root {
+      --dark-bg: #0d0d0d;
+      --card-bg: rgba(30, 30, 30, 0.8);
+      --card-hover-bg: rgba(40, 40, 40, 0.9);
+      --accent-color: #f5f5f5;
+      --text-color: #e0e0e0;
+      --secondary-text: #888;
+      --border-radius: 16px; /* 增加圆角，更接近椭圆感 */
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --card-border: 1px solid rgba(255, 255, 255, 0.15);
+      --highlight-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      margin: 0;
+      background-color: var(--dark-bg);
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(40, 40, 40, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(50, 50, 50, 0.2) 0%, transparent 50%);
+      color: var(--text-color);
+      font-family: 'PingFangSC', 'Microsoft YaHei', sans-serif; /* 添加备用字体 */
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    header {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-family: /*'KingHwa_OldSong',*/ serif; /* 移除可能不存在的字体 */
+      font-size: 2.6rem;
+      color: var(--accent-color);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      margin-bottom: 0.5rem;
+      letter-spacing: 2px;
+    }
+    
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0 1rem 0.8rem;
+      margin-bottom: 0.8rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .controls button,
+    .controls select,
+    .controls input[type="text"] {
+      background-color: rgba(25, 25, 25, 0.8);
+      color: var(--text-color);
+      border: var(--card-border);
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--border-radius);
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      backdrop-filter: blur(8px);
+      cursor: pointer; /* 添加指针样式 */
+    }
+    
+    .controls button:hover,
+    .controls select:hover {
+      background-color: rgba(40, 40, 40, 0.9);
+      transform: translateY(-1px);
+    }
+    
+    .tab-button {
+      position: relative;
+      overflow: hidden;
+      min-width: 80px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .tab-button::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background-color: var(--accent-color);
+      transition: width 0.3s;
+    }
+    
+    .tab-button:hover::after {
+      width: 40%;
+    }
+    
+    .tab-button.active {
+      background-color: rgba(60, 60, 60, 0.6);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .tab-button.active::after {
+      width: 70%;
+    }
+    
+    #searchInput {
+      flex: 1;
+      max-width: 200px;
+      background: rgba(20, 20, 20, 0.8);
+      border: var(--card-border);
+      color: var(--text-color);
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--border-radius);
+    }
+    
+    #searchInput::placeholder {
+      color: var(--secondary-text);
+    }
+    
+    .add-note-btn {
+      font-weight: bold;
+      font-size: 1.6rem;
+      padding: 0.2rem 0.7rem;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%; /* 圆形按钮 */
+      background: transparent;
+      color: var(--accent-color);
+      cursor: pointer;
+      transition: all 0.3s;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .add-note-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: rotate(90deg);
+    }
+    
+    .notes-container {
+      display: grid;
+      /* 调整最小宽度以适应内容 */
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .note-card {
+      border: var(--card-border);
+      border-radius: var(--border-radius); /* 应用更大的圆角 */
+      background: var(--card-bg);
+      padding: 0.8rem;
+      word-break: break-word;
+      cursor: grab;
+      transition: all 0.2s ease;
+      position: relative;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      min-height: 100px; /* 增加最小高度 */
+      max-height: 250px; /* 增加最大高度 */
+      overflow: hidden;
+      backdrop-filter: blur(5px);
+      color: var(--text-color); /* 确保卡片内文字颜色 */
+    }
+    
+    /* 空卡片的特定样式 */
+    .note-card.empty {
+      min-height: 100px; /* 保持一致的最小高度 */
+      max-height: 100px; /* 可以限制空卡片的最大高度 */
+      border: 1px dashed rgba(255, 255, 255, 0.3);
+      background: rgba(20, 20, 20, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--secondary-text);
+      font-style: italic;
+    }
+    
+    .note-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      background: var(--card-hover-bg);
+    }
+    
+    .note-card.sortable-chosen {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+    
+    .note-card.sortable-ghost {
+      opacity: 0.4;
+      background: var(--highlight-color);
+    }
+    
+    .note-preview {
+      white-space: pre-wrap; /* 保留换行和空格 */
+      line-height: 1.4;
+      font-size: 0.9rem;
+      overflow: hidden; /* 隐藏溢出内容 */
+      /* 使用 flex 布局实现内容超出显示省略号 */
+      flex: 1;
+      /* Webkit 内核浏览器显示多行省略号（可选） */
+       display: -webkit-box;
+       -webkit-line-clamp: 8; /* 最多显示8行 */
+       -webkit-box-orient: vertical;
+       text-overflow: ellipsis; /* 确保单行溢出时也显示省略号 */
+       word-break: break-all; /* 允许在单词内换行 */
+    }
+    /* 确保预览区域内的图片正常显示 */
+     .note-preview img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0.5rem 0;
+        border-radius: 4px;
+    }
+    /* 待办事项复选框的样式（预览时） */
+    .note-preview input[type="checkbox"] {
+        margin-right: 0.3em;
+        vertical-align: middle; /* 垂直居中对齐 */
+    }
+
+
+    .note-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--secondary-text);
+      margin-top: 0.4rem;
+      padding-top: 0.4rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0; /* 防止元数据区域被压缩 */
+    }
+    
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      font-family: /*'KingHwa_OldSong',*/ serif; /* 移除可能不存在的字体 */
+      font-size: 0.8rem;
+      color: var(--secondary-text);
+      padding: 1rem 1.5rem;
+      background: rgba(10, 10, 10, 0.8);
+      margin-top: 1rem;
+      flex-shrink: 0; /* 防止页脚被压缩 */
+    }
+    
+    /* 模态窗口：编辑笔记 */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none; /* 初始隐藏 */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(3px); /* 给背景添加模糊效果 */
+    }
+    
+    .modal-content {
+      background: rgba(25, 25, 25, 0.98); /* 更不透明一点 */
+      padding: 1.5rem;
+      border-radius: 18px;
+      width: 90%;
+      max-width: 600px; /* 稍微增大最大宽度 */
+      max-height: 85vh; /* 增加最大高度 */
+      display: flex; /* 使用 flex 布局 */
+      flex-direction: column; /* 垂直排列 */
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: modalFadeIn 0.3s ease-out; /* 调整动画 */
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.8rem;
+      margin-bottom: 1rem;
+      position: relative;
+      flex-shrink: 0; /* 防止头部被压缩 */
+    }
+    
+    .modal-header h3 {
+      margin: 0;
+      font-family: /*'KingHwa_OldSong',*/ serif; /* 移除可能不存在的字体 */
+      font-size: 1.6rem;
+      text-align: center;
+      flex: 1;
+      color: var(--accent-color);
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: -10px; /* 调整位置 */
+      right: -10px; /* 调整位置 */
+      background: rgba(40, 40, 40, 0.9); /* 稍微改变背景色 */
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-color);
+      font-size: 1.4rem;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 1; /* 确保在标题之上 */
+    }
+    
+    .modal-close:hover {
+      background: rgba(60, 60, 60, 1); /* 加深悬停背景色 */
+      transform: rotate(90deg) scale(1.1); /* 增加旋转和缩放效果 */
+    }
+    
+    .modal-tags {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0; /* 防止标签区域被压缩 */
+    }
+    
+    .modal-tags select {
+      background-color: rgba(20, 20, 20, 0.8);
+      color: var(--text-color);
+      border: var(--card-border);
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--border-radius);
+      font-size: 0.9rem;
+      min-width: 100px;
+      cursor: pointer; /* 添加指针样式 */
+    }
+    
+    /* 使编辑器区域可滚动 */
+    .editor-container {
+        flex: 1; /* 占据剩余空间 */
+        overflow-y: auto; /* 允许垂直滚动 */
+        margin-bottom: 1rem; /* 与操作按钮间距 */
+        border: var(--card-border); /* 给滚动容器加边框 */
+        border-radius: var(--border-radius);
+        background: rgba(15, 15, 15, 0.5);
+    }
+    
+    .editor {
+      width: 100%;
+      min-height: 250px; /* 编辑器本身的最小高度 */
+      /* 移除背景和边框，移到父容器 */
+      color: var(--text-color);
+      font-size: 1rem;
+      line-height: 1.6; /* 增加行高 */
+      outline: none;
+      padding: 1rem;
+      resize: none; /* 禁用手动调整大小 */
+      white-space: pre-wrap; /* 保留编辑时的换行和空格 */
+      word-wrap: break-word; /* 允许长单词换行 */
+    }
+    
+    .editor:focus {
+        /* 焦点效果可以加在父容器上，或者保持不变 */
+    }
+    
+    .editor img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1); /* 图片边框 */
+    }
+    
+    /* 编辑器中的待办项样式 */
+    .editor input[type="checkbox"] {
+        margin-right: 0.4em;
+        transform: scale(1.1); /* 稍微放大 */
+        vertical-align: middle; /* 垂直居中 */
+        cursor: default; /* 因为 onclick="return false;"，设为默认指针 */
+    }
+
+
+    /* 提交按钮 */
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0; /* 移除顶部边距，因为 editor-container 有底部边距 */
+      flex-shrink: 0; /* 防止操作区域被压缩 */
+    }
+    
+    .submit-btn {
+      background: rgba(50, 150, 250, 0.8); /* 使用更亮的颜色 */
+      color: #ffffff; /* 白色文字 */
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .submit-btn:hover {
+      background: rgba(70, 170, 255, 1); /* 悬停时更亮 */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(50, 150, 250, 0.3); /* 添加阴影 */
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .notes-container {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* 调整平板尺寸 */
+        gap: 0.8rem;
+        padding: 0.8rem;
+      }
+    
+      header {
+        font-size: 2rem;
+        padding: 1rem;
+      }
+    
+      .modal-content {
+        width: 95%;
+        padding: 1rem;
+        max-height: 90vh; /* 移动端允许更高 */
+      }
+      .editor {
+          min-height: 200px; /* 减小移动端编辑区最小高度 */
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .notes-container {
+        /* 手机端每行最多两个，或根据需要调整 */
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 0.6rem;
+        padding: 0.5rem; /* 减小内边距 */
+      }
+    
+      .controls {
+        gap: 0.5rem;
+        padding: 0 0.5rem 0.5rem; /* 减小内边距 */
+      }
+    
+      .tab-button {
+        min-width: 70px; /* 调整按钮宽度 */
+        font-size: 0.8rem;
+      }
+       #searchInput {
+           max-width: 150px; /* 手机上减小搜索框宽度 */
+       }
+       .note-card {
+           min-height: 80px; /* 手机上减小卡片最小高度 */
+       }
+       .modal-header h3 {
+           font-size: 1.4rem; /* 减小标题字号 */
+       }
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>神说要有光</header>
+
+  <!-- 顶部控制区 -->
+  <div class="controls">
+    <button class="tab-button active" onclick="setCategory('工作')">工作</button>
+    <button class="tab-button" onclick="setCategory('学习')">学习</button>
+    <button class="tab-button" onclick="setCategory('生活')">生活</button>
+    <select id="timeFilter" onchange="renderNotes()">
+      <option value="全部">全部时间</option>
+      <option value="明日">明日</option>
+      <option value="本周">本周</option>
+      <option value="本月">本月</option>
+      <option value="今年">今年</option>
+    </select>
+    <input type="text" id="searchInput" placeholder="检索关键词..." oninput="renderNotes()">
+    <button class="add-note-btn" onclick="addNote()" title="新建笔记">＋</button>
+  </div>
+
+  <!-- 笔记预览区 -->
+  <div class="notes-container" id="notesContainer">
+      <!-- 笔记卡片将由 JS 动态生成 -->
+  </div>
+
+  <div class="footer">
+    <div>微信 ZMKC404</div>
+    <div>窄门科创出品</div>
+  </div>
+
+  <!-- 模态窗口：编辑笔记 -->
+  <div class="modal" id="noteModal">
+    <div class="modal-content" id="modalContent">
+      <div class="modal-header">
+        <h3>编辑笔记</h3>
+        <button class="modal-close" onclick="closeNoteModal()" title="关闭 (Esc)">×</button>
+      </div>
+      <!-- 标签选择区域 -->
+      <div class="modal-tags">
+        <select id="modalCategory">
+          <option value="工作">工作</option>
+          <option value="学习">学习</option>
+          <option value="生活">生活</option>
+        </select>
+        <select id="modalTime">
+          <option value="明日">明日</option>
+          <option value="本周">本周</option>
+          <option value="本月">本月</option>
+          <option value="今年">今年</option>
+        </select>
+      </div>
+
+      <!-- 编辑器容器，用于滚动 -->
+      <div class="editor-container">
+         <!-- 编辑区：支持富文本、拖拽图片、快捷键 -->
+         <div class="editor" id="modalEditor" contenteditable="true" spellcheck="false"></div>
+      </div>
+
+
+      <!-- 提交按钮 -->
+      <div class="modal-actions">
+        <button class="submit-btn" onclick="closeNoteModal()" title="保存并关闭 (Ctrl+Enter)">保存笔记</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentCategory = '工作';
+    let currentNoteId = null;
+    let notesData = []; // 内存中的笔记数据缓存
+    let sortableInstance = null; // SortableJS 实例
+
+    // --- 核心数据处理函数 ---
+    
+    // 从 localStorage 加载笔记到内存缓存
+    function loadNotesFromStorage() {
+      try {
+        notesData = JSON.parse(localStorage.getItem('notes') || '[]');
+        // 数据清洗和兼容处理
+        notesData.forEach((note, index) => {
+          if (!note.id) note.id = Date.now() + index; // 确保有唯一ID
+          if (!note.category) note.category = '生活';
+          if (!note.time) note.time = '本周';
+          if (!note.createdAt) note.createdAt = new Date().toISOString();
+          if (typeof note.content === 'undefined') note.content = '';
+        });
+      } catch (error) {
+        console.error("加载笔记时出错:", error);
+        notesData = []; // 出错则重置
+      }
+      // 可以选择在这里根据某个字段排序，例如创建时间
+      // notesData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+    
+    // 将内存缓存保存到 localStorage
+    function saveNotesToStorage() {
+      try {
+        localStorage.setItem('notes', JSON.stringify(notesData));
+      } catch (error) {
+        console.error("保存笔记时出错:", error);
+        // 可以考虑添加用户反馈机制
+      }
+    }
+    
+    // 根据当前过滤器获取笔记
+    function getFilteredNotes() {
+      const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+      const timeFilter = getTimeValue();
+    
+      return notesData.filter(note => {
+        const matchCategory = note.category === currentCategory;
+        const matchTime = (timeFilter === '全部' || note.time === timeFilter);
+        // 搜索内容（不区分大小写）
+        const matchSearch = !searchQuery ||
+                            (note.content && note.content.toLowerCase().includes(searchQuery)) ||
+                            // 如果需要，也可以搜索标签或ID
+                            (note.category.toLowerCase().includes(searchQuery)) ||
+                            (note.time.toLowerCase().includes(searchQuery));
+    
+        return matchCategory && matchTime && matchSearch;
+      });
+      // 注意：这里的顺序是基于 notesData 的当前顺序，拖拽会直接修改 notesData 的顺序
+    }
+    
+    // 通过 ID 在缓存中查找笔记
+    function findNoteById(id) {
+        // 确保比较时类型一致
+        const targetId = Number(id);
+        return notesData.find(note => Number(note.id) === targetId);
+    }
+    
+    // 更新缓存中的笔记
+    function updateNote(id, updatedContent, updatedCategory, updatedTime) {
+        const noteIndex = notesData.findIndex(note => Number(note.id) === Number(id));
+        if (noteIndex !== -1) {
+            notesData[noteIndex].content = updatedContent;
+            notesData[noteIndex].category = updatedCategory;
+            notesData[noteIndex].time = updatedTime;
+            notesData[noteIndex].lastModified = new Date().toISOString(); // 添加最后修改时间
+            saveNotesToStorage(); // 更新后立即保存
+            return true;
+        }
+        console.warn("尝试更新笔记失败，未找到 ID:", id);
+        return false;
+    }
+    
+     // 从缓存中删除笔记
+    function deleteNoteById(id) {
+        const noteIndex = notesData.findIndex(note => Number(note.id) === Number(id));
+        if (noteIndex !== -1) {
+            notesData.splice(noteIndex, 1); // 从数组中移除
+            saveNotesToStorage(); // 保存更改
+            return true;
+        }
+        console.warn("尝试删除笔记失败，未找到 ID:", id);
+        return false;
+    }
+    
+    // --- UI 更新函数 ---
+    
+    // 添加新笔记
+    function addNote() {
+      const newNote = {
+        id: Date.now(),
+        content: '', // 初始为空
+        category: currentCategory,
+        time: '本周', // 默认时间标签
+        createdAt: new Date().toISOString(),
+        lastModified: new Date().toISOString()
+      };
+    
+      // 将新笔记添加到数据数组的开头（或末尾，取决于你希望新笔记出现的位置）
+      notesData.unshift(newNote); // unshift 加到开头
+      // notesData.push(newNote); // push 加到末尾
+    
+      saveNotesToStorage(); // 保存到 localStorage
+      renderNotes(); // 重新渲染笔记列表
+    
+      // 延迟一点打开模态框，确保DOM更新完成
+      setTimeout(() => {
+        openNoteModal(newNote.id);
+      }, 50); // 50毫秒延迟
+    }
+    
+    // 设置当前分类并刷新视图
+    function setCategory(category) {
+      currentCategory = category;
+      // 更新顶部按钮的激活状态
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === category);
+      });
+      renderNotes(); // 重新渲染笔记
+    }
+    
+    // 获取时间过滤器选中的值
+    function getTimeValue() {
+      const select = document.getElementById('timeFilter');
+      return select ? select.value : '全部';
+    }
+    
+    // 格式化日期用于卡片显示
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return ''; // 无效日期
+    
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const noteDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    
+            const diffTime = today.getTime() - noteDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+            if (diffDays === 0) {
+                // 今天：显示时间 HH:MM
+                return `今天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+            } else if (diffDays === 1) {
+                return '昨天';
+            } else if (diffDays < 7 && diffDays > 0) {
+                return `${diffDays}天前`;
+            } else if (date.getFullYear() === now.getFullYear()) {
+                 // 今年：显示 M月D日
+                return `${date.getMonth() + 1}月${date.getDate()}日`;
+            } else {
+                // 更早：显示 YYYY年M月D日
+                return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+            }
+        } catch (e) {
+            console.error("日期格式化错误:", dateString, e);
+            return '';
+        }
+    }
+    
+    // 渲染笔记卡片到容器中
+    function renderNotes() {
+      const container = document.getElementById('notesContainer');
+      if (!container) {
+          console.error("笔记容器 'notesContainer' 未找到！");
+          return;
+      }
+      container.innerHTML = ''; // 清空现有卡片
+    
+      const filteredNotes = getFilteredNotes(); // 获取符合当前过滤条件的笔记
+    
+      if (filteredNotes.length === 0) {
+        // 显示空状态提示
+        const emptyState = document.createElement('div');
+        emptyState.style.gridColumn = '1 / -1';
+        emptyState.style.textAlign = 'center';
+        emptyState.style.padding = '3rem';
+        emptyState.style.color = 'var(--secondary-text)';
+        emptyState.textContent = '这里空空如也，点击 + 新建一条笔记吧！';
+        container.appendChild(emptyState);
+      } else {
+        // 为每个过滤后的笔记创建卡片
+        filteredNotes.forEach(note => {
+          const card = document.createElement('div');
+          card.className = 'note-card';
+          card.dataset.id = note.id; // 在DOM元素上存储笔记ID
+    
+          // 如果内容为空，添加 'empty' 类并显示提示文字
+          if (!note.content || note.content.trim() === '' || note.content === '<p><br></p>') { // 编辑器可能产生空段落
+            card.classList.add('empty');
+            card.textContent = '点击编辑...';
+          } else {
+            // 创建内容预览区域
+            const preview = document.createElement('div');
+            preview.className = 'note-preview';
+            // 注意：直接使用 innerHTML 可能有 XSS 风险，如果内容来源不可信，需要净化处理。
+            // 对于本应用，假定内容是用户自己输入的。
+            preview.innerHTML = note.content;
+            card.appendChild(preview);
+    
+            // 创建元信息区域（标签和日期）
+            const meta = document.createElement('div');
+            meta.className = 'note-meta';
+    
+            const timeTag = document.createElement('span');
+            timeTag.textContent = note.time || '未分类'; // 显示时间标签
+    
+            const dateInfo = document.createElement('span');
+            // 优先显示最后修改时间，否则显示创建时间
+            dateInfo.textContent = formatDate(note.lastModified || note.createdAt);
+            dateInfo.title = `创建于: ${formatDate(note.createdAt)}`; // 鼠标悬停显示创建时间
+    
+            meta.appendChild(timeTag);
+            meta.appendChild(dateInfo);
+            card.appendChild(meta);
+          }
+    
+          // 添加点击事件监听器，点击卡片打开编辑模态框
+          card.addEventListener('click', (event) => {
+              // 防止点击卡片内部的交互元素（如未来的删除按钮）时也触发打开模态框
+              if (event.target.closest('.note-action-button')) { // 假设未来有操作按钮
+                  return;
+              }
+              openNoteModal(note.id);
+          });
+          container.appendChild(card); // 将卡片添加到容器中
+        });
+      }
+    
+      // 渲染完成后，（重新）初始化拖拽功能
+      enableDrag();
+    }
+    
+    // --- 拖拽功能 ---
+    
+    function enableDrag() {
+      const container = document.getElementById('notesContainer');
+      if (!container) return;
+    
+      // 如果已有实例，先销毁
+      if (sortableInstance) {
+        sortableInstance.destroy();
+      }
+    
+      // 只有当卡片数量大于1时才启用拖拽
+      if (container.children.length > 1 && !container.querySelector('.empty-state')) { // 排除空状态提示
+        sortableInstance = Sortable.create(container, {
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          dragClass: 'sortable-drag',
+          handle: '.note-card', // 明确拖拽句柄为整个卡片
+          filter: '.empty', // 不允许拖拽空提示卡片
+          onEnd: updateOrder // 拖拽结束后调用的函数
+        });
+      }
+    }
+    
+    // 拖拽结束后更新 notesData 中的顺序
+    function updateOrder(evt) {
+        const container = evt.from;
+        // 获取拖拽后容器中所有卡片的 ID 顺序
+        const orderedIds = Array.from(container.children)
+                                .map(child => child.dataset.id)
+                                .filter(id => id); // 过滤掉可能存在的无效ID
+    
+        if (orderedIds.length <= 1) return; // 元素数量不足，无需排序
+    
+        // 创建一个 ID 到新索引的映射
+        const idToNewIndexMap = new Map();
+        orderedIds.forEach((id, index) => {
+            idToNewIndexMap.set(String(id), index); // 使用字符串 ID 作为 Map 的键
+        });
+    
+        // 对内存中的 notesData 数组进行排序
+        // 这个排序逻辑确保了当前视图中的笔记按照拖拽后的顺序排列，
+        // 而不在当前视图中的笔记（由于过滤）保持其相对位置或被移到末尾。
+        notesData.sort((a, b) => {
+            const indexA = idToNewIndexMap.has(String(a.id)) ? idToNewIndexMap.get(String(a.id)) : Infinity;
+            const indexB = idToNewIndexMap.has(String(b.id)) ? idToNewIndexMap.get(String(b.id)) : Infinity;
+            return indexA - indexB;
+        });
+    
+        saveNotesToStorage(); // 保存排序后的数据
+        // 注意：不需要在这里调用 renderNotes()，因为 SortableJS 已经更新了视觉顺序。
+    }
+    
+    // --- 模态框（编辑窗口）功能 ---
+    
+    // 打开编辑模态框
+    function openNoteModal(noteId) {
+      currentNoteId = noteId; // 记录当前正在编辑的笔记ID
+      const note = findNoteById(noteId);
+      const modal = document.getElementById('noteModal');
+      const editor = document.getElementById('modalEditor');
+      const categorySelect = document.getElementById('modalCategory');
+      const timeSelect = document.getElementById('modalTime');
+    
+      if (!modal || !editor || !categorySelect || !timeSelect || !note) {
+        console.error("打开模态框失败：缺少元素或未找到笔记 ID:", noteId);
+        // 可以选择关闭模态框或显示错误信息
+        if(modal) modal.style.display = 'none';
+        return;
+      }
+    
+      // 将笔记数据填充到模态框的对应元素中
+      editor.innerHTML = note.content; // 使用 innerHTML 以保留富文本格式
+      categorySelect.value = note.category;
+      timeSelect.value = note.time;
+    
+      modal.style.display = 'flex'; // 显示模态框
+    
+      // 延迟后聚焦编辑器，并尝试将光标移到末尾
+       setTimeout(() => {
+            editor.focus();
+            const range = document.createRange();
+            const sel = window.getSelection();
+            if (editor.lastChild) { // 检查是否有内容
+                range.setStartAfter(editor.lastChild); // 移动到最后一个子节点之后
+            } else {
+                range.selectNodeContents(editor); // 如果为空，则选中整个编辑器
+            }
+            range.collapse(true); // 折叠范围到起始点（即末尾）
+            sel.removeAllRanges(); // 移除现有选区
+            sel.addRange(range); // 添加新选区
+        }, 100); // 延迟以确保元素可见且可聚焦
+    }
+    
+    // 关闭编辑模态框
+    function closeNoteModal() {
+      const modal = document.getElementById('noteModal');
+      const editor = document.getElementById('modalEditor');
+      const categorySelect = document.getElementById('modalCategory');
+      const timeSelect = document.getElementById('modalTime');
+    
+      if (!modal || !editor || !categorySelect || !timeSelect) return;
+    
+      if (currentNoteId !== null) {
+        const editorContent = editor.innerHTML;
+        const selectedCategory = categorySelect.value;
+        const selectedTime = timeSelect.value;
+    
+        const note = findNoteById(currentNoteId);
+    
+        // 检查内容是否真的为空 (考虑编辑器可能插入 <p><br></p>)
+        const isEmptyContent = !editorContent.trim() || editorContent === '<p><br></p>' || editorContent === '<div><br></div>';
+    
+        // 如果是新创建的笔记（没有初始内容）且关闭时内容仍然为空，则删除该笔记
+        if (note && (!note.content || note.content.trim() === '') && isEmptyContent) {
+             console.log(`笔记 ${currentNoteId} 为空，将被删除。`);
+             deleteNoteById(currentNoteId);
+        } else {
+            // 否则，更新笔记内容
+            const updated = updateNote(currentNoteId, editorContent, selectedCategory, selectedTime);
+             if (!updated) {
+                console.warn("关闭模态框时尝试保存笔记失败，ID:", currentNoteId);
+            }
+        }
+      }
+    
+      modal.style.display = 'none'; // 隐藏模态框
+      currentNoteId = null; // 重置当前编辑的笔记ID
+      renderNotes(); // 重新渲染笔记列表以反映更改（或删除）
+    }
+    
+    // --- 事件监听器 ---
+    
+    // 编辑器快捷键处理
+    const editorElement = document.getElementById('modalEditor');
+    if (editorElement) {
+      editorElement.addEventListener('keydown', function(e) {
+        // Ctrl + B: 加粗
+        if (e.ctrlKey && e.key.toLowerCase() === 'b') {
+          e.preventDefault();
+          document.execCommand('bold', false, null);
+        }
+        // Ctrl + K: 插入待办项
+        else if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          // 插入带有一个禁用 checkbox 的 span，使其看起来像 Markdown 的 [ ]
+          // onclick="return false;" 阻止了点击交互
+          document.execCommand('insertHTML', false, '<span contenteditable="false" style="cursor: default;"><input type="checkbox" onclick="return false;" style="margin-right: 0.4em; vertical-align: middle;"></span> ');
+          // 需要在后面加一个空格，以便继续输入
+           document.execCommand('insertText', false, ' ');
+    
+        }
+        // Ctrl + Enter: 保存并关闭
+        else if (e.ctrlKey && e.key === 'Enter') {
+          e.preventDefault();
+          closeNoteModal();
+        }
+      });
+    
+       // 监听粘贴事件，尝试清理粘贴内容 (可选，简化版)
+       editorElement.addEventListener('paste', function(e) {
+           e.preventDefault(); // 阻止默认粘贴行为
+           const text = e.clipboardData.getData('text/plain'); // 获取纯文本内容
+           document.execCommand('insertText', false, text); // 插入纯文本
+           // 如果想保留部分格式，处理会更复杂，可能需要分析 'text/html'
+       });
+    
+      // 图片拖拽上传支持
+      editorElement.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        editorElement.style.outline = '2px dashed var(--accent-color)'; // 使用 outline 突出显示
+        editorElement.style.outlineOffset = '-2px';
+      });
+    
+      editorElement.addEventListener('dragleave', function() {
+        editorElement.style.outline = 'none';
+      });
+    
+      editorElement.addEventListener('drop', function(e) {
+        e.preventDefault();
+        editorElement.style.outline = 'none';
+        const files = e.dataTransfer.files;
+        if (files && files.length) {
+          // 只处理第一个拖入的图片文件
+          const imageFile = Array.from(files).find(file => file.type.startsWith('image/'));
+          if (imageFile) {
+              const reader = new FileReader();
+              reader.onload = function(evt) {
+                  // 插入带有样式的图片
+                  document.execCommand('insertHTML', false,
+                   `<img src="${evt.target.result}" alt="图片" style="max-width: 95%; height: auto; display: block; margin: 8px auto; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">`
+                   );
+              };
+              reader.readAsDataURL(imageFile);
+          } else {
+              alert('请拖入图片文件。');
+          }
+        }
+      });
+    }
+    
+    // 点击模态框背景关闭模态框
+    document.getElementById('noteModal')?.addEventListener('click', function(e) {
+      // 确保点击的是模态框本身（背景），而不是其子元素
+      if (e.target === this) {
+        closeNoteModal();
+      }
+    });
+    
+    // Esc 键关闭模态框
+    document.addEventListener('keydown', function(e) {
+      const modal = document.getElementById('noteModal');
+      // 检查模态框是否可见
+      if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+        closeNoteModal();
+      }
+    });
+    
+    // 页面即将卸载时，尝试保存未保存的更改
+    window.addEventListener('beforeunload', () => {
+      const modal = document.getElementById('noteModal');
+      if (modal && modal.style.display === 'flex' && currentNoteId !== null) {
+          // 直接调用 updateNote 保存，因为页面即将关闭，无需关闭UI
+          const editor = document.getElementById('modalEditor');
+          const categorySelect = document.getElementById('modalCategory');
+          const timeSelect = document.getElementById('modalTime');
+          if(editor && categorySelect && timeSelect) {
+             updateNote(currentNoteId, editor.innerHTML, categorySelect.value, timeSelect.value);
+             console.log("页面卸载前保存笔记:", currentNoteId);
+          }
+      }
+    });
+    
+    // --- 初始化 ---
+    
+    // 页面加载完成后执行初始化操作
+    window.addEventListener('load', () => {
+      console.log("页面加载完成，开始初始化...");
+      loadNotesFromStorage(); // 1. 加载数据
+      setCategory(currentCategory); // 2. 设置初始分类并首次渲染笔记
+      // 可以根据需要恢复上次使用的时间过滤器状态
+      // const lastTimeFilter = localStorage.getItem('lastTimeFilter') || '全部';
+      // document.getElementById('timeFilter').value = lastTimeFilter;
+      // renderNotes(); // 如果恢复了时间过滤器，需要再渲染一次
+      console.log("初始化完成。");
+    });
+
+  </script>
+</body>
+</html>

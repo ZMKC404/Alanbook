@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>商君录系统</title>
+  <style>
+    @font-face {
+      font-family: 'KingHwa_OldSong';
+      src: url('KingHwa_OldSong.ttf') format('truetype');
+    }
+
+    :root {
+      --primary-color: white;
+      --bg-color: #000000;
+      --accent-color: #d40000;
+      --highlight-color: #333333;
+      --spacing-unit: 8px;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--primary-color);
+      font-family: 'KingHwa_OldSong', sans-serif;
+      line-height: 1.6;
+      padding: var(--spacing-unit) * 2;
+    }
+    
+    .header {
+      text-align: center;
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      padding: calc(var(--spacing-unit) * 4) 0 calc(var(--spacing-unit) * 2);
+      border-bottom: 1px solid var(--primary-color);
+      margin-bottom: calc(var(--spacing-unit) * 3);
+    }
+    
+    .sub-header {
+      position: absolute;
+      top: calc(var(--spacing-unit) * 2);
+      right: calc(var(--spacing-unit) * 2);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    
+    .mode-buttons {
+      display: flex;
+      justify-content: center;
+      gap: calc(var(--spacing-unit) * 2);
+      margin: calc(var(--spacing-unit) * 4) 0;
+    }
+    
+    button {
+      background: var(--primary-color);
+      color: var(--bg-color);
+      border: none;
+      padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+    
+    button:hover {
+      background: var(--accent-color);
+      color: var(--primary-color);
+    }
+    
+    .section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: calc(var(--spacing-unit) * 2);
+    }
+    
+    .form-group {
+      margin-bottom: calc(var(--spacing-unit) * 3);
+    }
+    
+    h2 {
+      font-size: 24px;
+      margin-bottom: calc(var(--spacing-unit) * 3);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-left: 4px solid var(--primary-color);
+      padding-left: calc(var(--spacing-unit) * 2);
+    }
+    
+    label {
+      display: block;
+      margin-bottom: calc(var(--spacing-unit));
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    
+    input[type="text"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: calc(var(--spacing-unit) * 1.5);
+      border: 1px solid var(--primary-color);
+      background: var(--bg-color);
+      color: var(--primary-color);
+      font-family: inherit;
+      font-size: 16px;
+    }
+    
+    input:focus, 
+    textarea:focus {
+      outline: 2px solid var(--accent-color);
+    }
+    
+    .card-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: calc(var(--spacing-unit) * 2);
+      margin-top: calc(var(--spacing-unit) * 3);
+    }
+    
+    .card {
+      border: 1px solid var(--primary-color);
+      padding: calc(var(--spacing-unit) * 2);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .card:hover {
+      background-color: var(--highlight-color);
+      transform: translateY(-4px);
+    }
+    
+    .delete-btn {
+      position: absolute;
+      top: calc(var(--spacing-unit));
+      right: calc(var(--spacing-unit));
+      color: var(--primary-color);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    
+    .delete-btn:hover {
+      color: var(--accent-color);
+      transform: scale(1.2);
+    }
+    
+    .question-box {
+      border: 2px solid var(--primary-color);
+      background: var(--bg-color);
+      color: var(--primary-color);
+      padding: calc(var(--spacing-unit) * 4);
+      margin: calc(var(--spacing-unit) * 6) auto calc(var(--spacing-unit) * 4);
+      width: 85%;
+      font-size: 180%;
+      font-weight: bold;
+      text-align: center;
+      word-break: break-word;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-color);
+      color: var(--bg-color);
+      padding: calc(var(--spacing-unit)) calc(var(--spacing-unit) * 3);
+      font-weight: bold;
+      margin-bottom: calc(var(--spacing-unit) * 2);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      width: 100px;
+    }
+    
+    .back-button:hover {
+      background: var(--accent-color);
+      color: var(--primary-color);
+    }
+    
+    .keyword-section {
+      width: 85%;
+      margin: 0 auto;
+      margin-top: calc(var(--spacing-unit) * 4);
+    }
+    
+    .keyword-input {
+      width: 100%;
+      padding: calc(var(--spacing-unit) * 1.5);
+      font-size: 16px;
+      background: var(--bg-color);
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      margin-bottom: calc(var(--spacing-unit) * 2);
+    }
+    
+    .keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: calc(var(--spacing-unit));
+      margin-top: calc(var(--spacing-unit) * 2);
+    }
+    
+    .keyword-tag {
+      border: 1px solid var(--primary-color);
+      padding: calc(var(--spacing-unit)) calc(var(--spacing-unit) * 2);
+      font-weight: bold;
+      border-radius: 0;
+      margin-right: calc(var(--spacing-unit));
+      margin-bottom: calc(var(--spacing-unit));
+      background-color: var(--highlight-color);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .keyword-tag:hover {
+      background-color: var(--accent-color);
+    }
+    
+    .footer {
+      position: fixed;
+      bottom: calc(var(--spacing-unit) * 2);
+      left: calc(var(--spacing-unit) * 2);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      opacity: 0.7;
+    }
+    
+    .question-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 85%;
+      margin: 0 auto;
+      margin-bottom: calc(var(--spacing-unit) * 2);
+    }
+    
+    .nav-hint {
+      text-align: center;
+      margin-top: calc(var(--spacing-unit) * 2);
+      font-size: 12px;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .card-name {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: calc(var(--spacing-unit));
+    }
+    
+    .card-tag {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: calc(var(--spacing-unit));
+    }
+    
+    .card-date {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: auto;
+    }
+    
+    .placeholder-text {
+      color: #555;
+      font-style: italic;
+    }
+    
+    @media (max-width: 600px) {
+      .question-box {
+        font-size: 140%;
+        padding: calc(var(--spacing-unit) * 2);
+      }
+      
+      .card-list {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">商君录</div>
+  <div class="sub-header">窄门科创出品</div>
+  <div class="mode-buttons">
+    <button onclick="showSection('backend')">后台模式</button>
+    <button onclick="showSection('presentation')">演示模式</button>
+  </div>
+
+  <div id="backend" class="section" style="display:none;">
+    <h2>会员档案</h2>
+    <div class="form-group">
+      <label>称呼</label>
+      <input type="text" id="name" />
+    </div>
+    <div class="form-group">
+      <label>标签</label>
+      <input type="text" id="tag" />
+    </div>
+    <div class="form-group">
+      <label>日期</label>
+      <input type="date" id="date" />
+    </div>
+    <div class="form-group">
+      <label>问题</label>
+      <textarea id="questions" rows="5" placeholder="每行输入一个问题"></textarea>
+    </div>
+    <button onclick="saveCard()">保存</button>
+  </div>
+
+  <div id="presentation" class="section" style="display:none;">
+    <div id="card-container" class="card-list"></div>
+  </div>
+
+  <div id="question-display" class="section" style="display:none;">
+    <div class="question-controls">
+      <div class="back-button" onclick="goBack()">返回</div>
+      <div id="questionCounter" style="opacity: 0.7;"></div>
+    </div>
+    <div class="question-box" id="questionText">问题展示</div>
+    <div class="keyword-section">
+      <input type="text" id="keywordInput" class="keyword-input" placeholder="现场有神明..." />
+      <div id="keywords" class="keywords"></div>
+    </div>
+    <div class="nav-hint">滚动鼠标滚轮切换问题</div>
+  </div>
+
+  <div class="footer">微信ZMKC404</div>
+
+  <script>
+    let cards = [];
+    let currentCard = null;
+    let currentQuestionIndex = 0;
+    let previousCardId = null;
+    let previousQuestionIndex = null;
+
+    // 生成唯一ID
+    function generateUniqueId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    // 保存卡片信息到 localStorage
+    function saveCardsToLocalStorage() {
+      localStorage.setItem('cards', JSON.stringify(cards));
+    }
+    
+    // 从 localStorage 加载卡片信息
+    function loadCardsFromLocalStorage() {
+      const savedCards = localStorage.getItem('cards');
+      if (savedCards) {
+        cards = JSON.parse(savedCards);
+        // 确保所有卡片都有唯一ID
+        cards.forEach(card => {
+          if (!card.id) {
+            card.id = generateUniqueId();
+          }
+        });
+        saveCardsToLocalStorage(); // 保存更新后的卡片数据
+      }
+    }
+    
+    // 保存当前问题的关键词到 localStorage，使用"卡片ID-问题序号"作为唯一键
+    function saveKeywords() {
+      if (currentCard && currentQuestionIndex !== undefined) {
+        const keywords = Array.from(document.querySelectorAll('.keyword-tag')).map(tag => tag.textContent);
+        localStorage.setItem(`keywords-${currentCard.id}-${currentQuestionIndex}`, JSON.stringify(keywords));
+      }
+    }
+    
+    // 恢复当前问题的关键词到页面
+    function restoreKeywords() {
+      if (currentCard && currentQuestionIndex !== undefined) {
+        const keywordsContainer = document.getElementById('keywords');
+        keywordsContainer.innerHTML = '';
+        
+        const savedKeywords = localStorage.getItem(`keywords-${currentCard.id}-${currentQuestionIndex}`);
+        if (savedKeywords) {
+          const keywords = JSON.parse(savedKeywords);
+          keywords.forEach(keyword => {
+            addKeywordChip(keyword);
+          });
+        }
+      }
+    }
+    
+    // 清空关键词显示区域
+    function clearKeywordsDisplay() {
+      const keywordsContainer = document.getElementById('keywords');
+      keywordsContainer.innerHTML = '';
+    }
+    
+    // 添加关键词标签，点击标签直接删除（并更新存储）
+    function addKeywordChip(keyword) {
+      const keywordsContainer = document.getElementById('keywords');
+      const tag = document.createElement('div');
+      tag.className = 'keyword-tag';
+      tag.textContent = keyword;
+      tag.onclick = function(e) {
+        e.stopPropagation();
+        tag.remove();
+        updateStoredKeywords();
+      };
+      keywordsContainer.appendChild(tag);
+    }
+    
+    // 更新当前问题的关键词存储
+    function updateStoredKeywords() {
+      if (currentCard && currentQuestionIndex !== undefined) {
+        const keywords = Array.from(document.querySelectorAll('.keyword-tag')).map(tag => tag.textContent);
+        localStorage.setItem(`keywords-${currentCard.id}-${currentQuestionIndex}`, JSON.stringify(keywords));
+      }
+    }
+    
+    function showSection(id) {
+      document.getElementById('backend').style.display = 'none';
+      document.getElementById('presentation').style.display = 'none';
+      document.getElementById('question-display').style.display = 'none';
+      document.getElementById(id).style.display = 'block';
+      if (id === 'presentation') renderCards();
+    }
+    
+    function saveCard() {
+      const name = document.getElementById('name').value;
+      const tag = document.getElementById('tag').value;
+      const date = document.getElementById('date').value;
+      const questions = document.getElementById('questions').value.split('\n').filter(q => q.trim());
+    
+      if (name && questions.length) {
+        // 为新卡片创建唯一ID
+        const newCard = { 
+          id: generateUniqueId(),
+          name, 
+          tag, 
+          date, 
+          questions 
+        };
+        
+        cards.push(newCard);
+        saveCardsToLocalStorage();
+        alert('已保存');
+        document.getElementById('name').value = '';
+        document.getElementById('tag').value = '';
+        document.getElementById('date').value = '';
+        document.getElementById('questions').value = '';
+      } else {
+        alert('请输入称呼和至少一个问题');
+      }
+    }
+    
+    function renderCards() {
+      loadCardsFromLocalStorage();
+      const container = document.getElementById('card-container');
+      container.innerHTML = '';
+      if (cards.length === 0) {
+        container.innerHTML = '<div style="text-align: center; margin-top: 40px; opacity: 0.7;">暂无会员档案，请在后台模式添加</div>';
+        return;
+      }
+      cards.forEach((card, index) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="delete-btn" onclick="deleteCard(event, ${index})">×</div>
+          <div class="card-name">${card.name}</div>
+          <div class="card-tag">${card.tag || '无标签'}</div>
+          <div class="card-date">${card.date || '无日期'}</div>
+        `;
+        div.onclick = () => showQuestions(index);
+        container.appendChild(div);
+      });
+    }
+    
+    function deleteCard(event, index) {
+      event.stopPropagation();
+      if (confirm('确认删除此档案？')) {
+        const cardToDelete = cards[index];
+        
+        // 删除该卡片所有问题对应的关键词存储
+        if (cardToDelete && cardToDelete.id) {
+          for (let i = 0; i < cardToDelete.questions.length; i++) {
+            localStorage.removeItem(`keywords-${cardToDelete.id}-${i}`);
+          }
+        }
+        
+        cards.splice(index, 1);
+        saveCardsToLocalStorage();
+        renderCards();
+      }
+    }
+    
+    function showQuestions(index) {
+      // 如果有当前卡片，先保存其关键词
+      if (currentCard && currentQuestionIndex !== undefined) {
+        saveKeywords();
+      }
+      
+      // 设置新的当前卡片
+      currentCard = cards[index];
+      currentQuestionIndex = 0;
+      
+      document.getElementById('presentation').style.display = 'none';
+      document.getElementById('question-display').style.display = 'block';
+      
+      // 清空关键词显示区域，然后渲染问题
+      clearKeywordsDisplay();
+      renderQuestion();
+      
+      // 恢复当前问题的关键词
+      restoreKeywords();
+    }
+    
+    function renderQuestion() {
+      // 如果切换了问题，先保存上一个问题的关键词
+      if (currentCard && 
+          (previousCardId !== currentCard.id || 
+           previousQuestionIndex !== currentQuestionIndex) && 
+          previousCardId !== null && 
+          previousQuestionIndex !== null) {
+        // 保存上一个问题的关键词
+        const previousKeywords = Array.from(document.querySelectorAll('.keyword-tag')).map(tag => tag.textContent);
+        localStorage.setItem(`keywords-${previousCardId}-${previousQuestionIndex}`, JSON.stringify(previousKeywords));
+      }
+      
+      // 更新问题显示
+      const qBox = document.getElementById('questionText');
+      qBox.textContent = currentCard.questions[currentQuestionIndex];
+      document.getElementById('questionCounter').textContent = 
+        `${currentQuestionIndex + 1} / ${currentCard.questions.length}`;
+      
+      // 根据内容是否为多行调整对齐方式
+      setTimeout(function(){
+        const lineHeight = parseFloat(window.getComputedStyle(qBox).lineHeight);
+        if(qBox.scrollHeight > lineHeight * 1.5) {
+          qBox.style.textAlign = 'left';
+        } else {
+          qBox.style.textAlign = 'center';
+        }
+      }, 0);
+      
+      // 清空关键词显示区域
+      clearKeywordsDisplay();
+      
+      // 加载新问题对应的关键词
+      restoreKeywords();
+      
+      // 记录当前卡片ID和问题索引
+      previousCardId = currentCard.id;
+      previousQuestionIndex = currentQuestionIndex;
+    }
+    
+    function goBack() {
+      // 保存当前问题的关键词
+      saveKeywords();
+      
+      // 重置当前卡片和问题索引
+      previousCardId = null;
+      previousQuestionIndex = null;
+      currentCard = null;
+      currentQuestionIndex = 0;
+      
+      document.getElementById('question-display').style.display = 'none';
+      document.getElementById('presentation').style.display = 'block';
+    }
+    
+    function addKeyword() {
+      const input = document.getElementById('keywordInput');
+      const value = input.value.trim();
+      if (value) {
+        addKeywordChip(value);
+        input.value = '';
+        updateStoredKeywords();
+      }
+    }
+    
+    document.getElementById('keywordInput').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addKeyword();
+      }
+    });
+    
+    document.getElementById('question-display').addEventListener('wheel', function (e) {
+      if (!currentCard) return;
+      
+      // 保存当前问题的关键词
+      saveKeywords();
+      
+      // 切换问题
+      if (e.deltaY > 0 && currentQuestionIndex < currentCard.questions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      } else if (e.deltaY < 0 && currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+      }
+    });
+    
+    window.onload = function() {
+      loadCardsFromLocalStorage();
+      showSection('presentation');
+    }
+  </script>
+</body>
+</html>
